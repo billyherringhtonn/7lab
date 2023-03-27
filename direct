@@ -1,244 +1,147 @@
-+-------------------+              +-------------+
-|       Car         |<-------------|     Sedan   |
-+-------------------+              +-------------+
-| - speed: float     |              |-stats       |
-| - position: float  |              |             |
-| - lane: Lane       |              |             |
-+-------------------+              +-------------+
-        ^                                      ^
-        |                                      |
-+-----------------+                +-----------------+
-|     Highway     |                |      Lane       |
-+-----------------+                +-----------------+
-| - length: float  |                | - cars: List[Car]|
-| - lanes: List[Lane] |             | - highway: Highway|
-+-----------------+                +-----------------+
-        ^                                      ^
-        |                                      |
-+-----------------+                +-----------------+
-|    Simulation   |                |    TrafficLight |
-+-----------------+                +-----------------+
-| - cars: List[Car]|                | - state: str    |
-| - highway: Highway|              |                 |
-| - time_step: float|              |                 |
-+-----------------+                +-----------------+
-        ^                                      ^
-        |                                      |
-+-----------------+                            |
-|      Timer      |<---------------------------+
-+-----------------+
-| - callback: function |
-| - interval: float |
-+-----------------+
+                +-------------+
+                |   Vehicle   |
+                +-------------+
+                | speed       |
+                | position    |
+                | lane        |
+                | image       |
+                +-------------+
+                      ^
+                      |
+             +-----------------+
+             |   Car           |
+             +-----------------+
+             | car_type        |
+             | max_speed       |
+             +-----------------+
+                      ^
+                      |
+            +------------------------+
+            |   Highway               |
+            +------------------------+
+            | length                 |
+            | width                  |
+            | num_lanes              |
+            | lane_width             |
+            | cars                   |
+            +------------------------+
+Клас Vehicle є базовим класом для всіх типів транспортних засобів, які рухаються по автостраді. 
+Він містить атрибути, які використовуються всіма транспортними засобами, такі як швидкість, положення на дорозі та обрану смугу руху.
+Клас також містить атрибут image, який зберігає зображення транспортного засобу для візуалізації на екрані.
 
- 
-На цій діаграмі ми можемо побачити наступні класи та їх взаємозв'язки:
-•	Car: базовий клас для всіх машин, включаючи легковаговики
-•	Sedan: клас для легковаговика
-•	Highway: клас, що відповідає за автобан
-•	Lane: клас для полоси руху на автобані
-•	Simulation: клас, що відповідає за імітацію руху
-•	TrafficLight: клас, що відповідає за світлофори на автобані
-•	Timer: клас, що відповідає за таймер для регулювання часу в імітації
-Зв'язки між класами описані за допомогою стрілок, що вказують на спадкування або на залежність. 
-Зауважте, що Car залежить від Lane, а Lane залежить від Highway. Також Simulation містить список машин та автобан, 
-а Timer використовується для керування часом в імітації.
+Клас Car наслідується від Vehicle і додає свої власні атрибути, такі як тип машини і максимальна швидкість.
+Цей клас використовується для створення різних типів машин з різними характеристиками.
 
-Далі, потрібно реалізувати програму з візуальним інтерфейсом, що дозволяє використовувати розроблений легковаговик. 
-Для цього ми можемо використовувати мову програмування Python та бібліотеку Tkinter.
-Ось приклад коду програми з візуальним інтерфейсом:
-from tkinter import *
+Клас Highway представляє дорогу, на якій рухаються транспортні засоби. 
+Цей клас містить атрибути, які описують розміри та характеристики дороги, а також список об'єктів Car, які представляють машини, які рухаються по дорозі.
 
-# імпортуємо класи з діаграми класів
-from car import Sedan
-from highway import Highway, Lane
-from simulation import Simulation
+Для початку, потрібно розробити діаграму класів для програми.
 
-class App:
-    def __init__(self, master):
-        self.master = master
-        master.title("Simulation of Cars on Highway")
+Основні класи, які можуть бути використані в програмі:
 
-        # Створюємо віджет Canvas для відображення автобану
-        self.canvas = Canvas(master, width=800, height=400)
-        self.canvas.pack()
+Car (Легковий автомобіль) - базовий клас для усіх моделей автомобілів
+SportsCar (Спортивний автомобіль) - клас, що успадковується від Car, може мати високі швидкості та динаміку
+SUV (Великий позашляховик) - клас, що успадковується від Car, може мати велику вантажопідйомність та здатність їхати по нерівному дорожньому покриттю
+Truck (Вантажівка) - клас, що успадковується від Car, має велику вантажопідйомність та може бути використаний для перевезення вантажів
+Для програми можна також розробити клас для автодороги:
 
-        # Створюємо автобан з двома полосами руху
-        self.highway = Highway()
-        self.lane1 = Lane(self.highway, 0)
-        self.lane2 = Lane(self.highway, 1)
+Highway (Автобан) - клас, що містить дорожній покриття та машини, що їздять на ньому
+Кожна машина може мати такі характеристики як швидкість, прискорення, максимальна швидкість, тип палива та об'єм баку для палива. 
+Можна також розробити методи для переміщення машин по автодорозі та визначення їхньої поточної швидкості та пройденого шляху.
 
-        # Створюємо легковаговик
-        self.car = Sedan()
+Щодо візуального інтерфейсу, можна використовувати графічну бібліотеку, наприклад, Pygame або PyQt.
+Інтерфейс може містити візуалізацію автодороги та машин, кнопки для зміни параметрів машин, таких як швидкість, тип палива тощо, 
+а також кнопки для додавання та видалення машин з автодороги.
 
-        # Створюємо кнопки для керування імітацією
-        self.start_button = Button(master, text="Start", command=self.start_simulation)
-        self.start_button.pack(side=LEFT)
+Отже, для реалізації цієї програми потрібно використовувати об'єктно-орієнтований підхід та мову програмування, наприклад, Python.
+Для розробки візуального інтерфейсу можна використовувати фреймворк PyQt або інші інструменти для розробки графічних інтерфейсів.
 
-        self.stop_button = Button(master, text="Stop", command=self.stop_simulation)
-        self.stop_button.pack(side=LEFT)
-
-    def start_simulation(self):
-        # Створюємо імітацію руху self.simulation = Simulation(self.car, [self.lane1, self.lane2]) self.simulation.start()
-    # Починаємо відображення руху на Canvas
-    self.animate()
-
-def stop_simulation(self):
-    # Зупиняємо імітацію руху
-    self.simulation.stop()
-
-def animate(self):
-    # Очищуємо відображення на Canvas
-    self.canvas.delete(ALL)
-
-    # Відображаємо автобан та легковаговик
-    self.canvas.create_rectangle(0, 0, 800, 400, fill="gray")
-    self.lane1.draw(self.canvas)
-    self.lane2.draw(self.canvas)
-    self.car.draw(self.canvas)
-
-    # Оновлюємо положення легковаговика
-    self.simulation.update()
-
-    # Запускаємо цикл з відображенням
-    self.master.after(20, self.animate)
-Запускаємо програму
-root = Tk() app = App(root) root.mainloop()
-
-Для того, щоб програма коректно працювала, ми повинні додати логіку імітації руху машин в метод start_simulation.
-Можливо, ми захочемо створити окремий клас для імітації руху та додати його до нашої програми. 
-Також, ми можемо розширити інтерфейс, додавши можливість вибору типу машин, керуванням швидкістю та іншими параметрами.
-Наприклад, для вибору типу машин ми можемо додати відповідні елементи у наш візуальний інтерфейс:
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        super().__init__(master)
-        self.master = master
-        self.pack()
-        self.create_widgets()
-
-    def create_widgets(self):
-        self.car_type_label = tk.Label(self, text="Car Type:")
-        self.car_type_label.pack(side="left")
-Наступним кроком є створення візуального інтерфейсу з використанням бібліотеки Tkinter. 
-Нам потрібно створити вікно програми та розмістити на ньому різні елементи керування, такі як кнопки, текстові поля та малюнки.
-Ось приклад коду, який створює вікно програми з кнопкою "Старт" та текстовим полем для введення часу імітації:
-import tkinter as tk
-
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        super().__init__(master)
-        self.master = master
-        self.pack()
-        self.create_widgets()
-
-    def create_widgets(self):
-        self.time_label = tk.Label(self, text="Час імітації (сек):")
-        self.time_label.pack(side="left")
-
-        self.time_entry = tk.Entry(self)
-        self.time_entry.pack(side="left")
-
-        self.start_button = tk.Button(self, text="Старт", command=self.start_simulation)
-        self.start_button.pack(side="left")
-
-    def start_simulation(self):
-        simulation_time = float(self.time_entry.get())
-        # Запуск імітації руху машин
-        pass
-
-root = tk.Tk()
-app = Application(master=root)
-app.mainloop()
-Цей код створює вікно програми з текстовим полем та кнопкою "Старт".
-При натисканні на кнопку, викликається метод start_simulation, який отримує час імітації з текстового поля та запускає імітацію руху машин.
-Далі нам потрібно додати елементи керування для вибору типу машини та керування її рухом. 
-Наприклад, ми можемо додати випадаючий список для вибору типу машини та кнопки для керування її рухом вперед та назад.
-Ось приклад коду, який додає випадаючий список для вибору типу машини та кнопки для керування рухом:
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        super().__init__(master)
-        self.master = master
-        self.pack()
-        self.create_widgets()
-
-    def create_widgets(self):
-        self.time_label = tk.Label(self, text="Час імітації (сек):")
-        self.time_label.pack(side="left")
-
-        self.time_entry = tk.Entry(self)
-        self.time_entry.pack(side="left")
-
-        self.vehicle_label = tk.Label(self, text="Тип машини:")
-        self.vehicle_label.pack(side="left")
-Далі нам потрібно додати функціональність кнопкам Start та Stop. При натисканні на кнопку Start має початися імітація руху машин, 
-а при натисканні на кнопку Stop має зупинитися імітація.
-Оскільки ми хочемо виконувати імітацію руху машин у фоновому режимі, нам потрібно використати модуль threading для створення окремого потоку для імітації руху. 
-Також ми використаємо змінну running, яка буде використовуватися для визначення, чи треба продовжувати імітацію руху, чи ні.
-Ось як виглядатиме оновлений код для додавання функціональності кнопкам Start та Stop:
-import threading
-import time
-import random
-import tkinter as tk
-
+Нижче наведений приклад коду на Python для класу Car:
 class Car:
-    def __init__(self, canvas, x, y, speed):
-        self.canvas = canvas
-        self.image = tk.PhotoImage(file="car.gif")
-        self.id = canvas.create_image(x, y, image=self.image)
+    def __init__(self, fuel_type, tank_capacity, speed, acceleration, max_speed):
+        self.fuel_type = fuel_type
+        self.tank_capacity = tank_capacity
+        self.fuel_level = tank_capacity
         self.speed = speed
+        self.acceleration = acceleration
+        self.max_speed = max_speed
+        self.distance = 0
 
-    def move(self):
-        self.canvas.move(self.id, self.speed, 0)
-        if self.canvas.coords(self.id)[0] > 700:
-            self.canvas.coords(self.id, -100, random.randint(50, 250))
+    def move(self, time):
+        distance_traveled = self.speed * time + 0.5 * self.acceleration * time ** 2
+        self.distance += distance_traveled
+        self.fuel_level -= distance_traveled / 10  # assuming fuel consumption rate of 10 km/L
 
-class Simulation:
-    def __init__(self, canvas):
-        self.canvas = canvas
+    def refuel(self):
+        self.fuel_level = self.tank_capacity
+
+Цей клас містить конструктор, що ініціалізує властивості машини, метод move(), що переміщує машину на певний час, а також метод refuel(), 
+що заповнює бак до повної ємності.
+
+Для реалізації програми з візуальним інтерфейсом можна створити окремий модуль для візуалізації дороги та машин, а також окремий модуль для обробки дій користувача. 
+Приклад такого коду можна навести так:
+import pygame
+
+class Highway:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
         self.cars = []
-        self.running = False
 
     def add_car(self, car):
         self.cars.append(car)
 
-    def start(self):
-        self.running = True
-        while self.running:
-            for car in self.cars:
-                car.move()
-            self.canvas.update()
-            time.sleep(0.05)
+    def remove_car(self, car):
+        self.cars.remove(car)
 
-    def stop(self):
-        self.running = False
+    def move_cars(self, time):
+        for car in self.cars:
+            car.move(time)
 
-def create_car(simulation):
-    x = -100
-    y = random.randint(50, 250)
-    speed = random.randint(5, 10)
-    car = Car(simulation.canvas, x, y, speed)
-    simulation.add_car(car)
+    def draw(self, surface):
+        surface.fill((255, 255, 255))  # white background
+        for car in self.cars:
+            # draw car on the highway
+            pass  # code to draw car on highway
 
-def main():
-    root = tk.Tk()
-    root.title("Car Simulation")
+# create highway
+highway = Highway(800, 600)
 
-    canvas = tk.Canvas(root, width=700, height=300)
-    canvas.pack()
+# create some cars
+car1 = Car("gasoline", 60, 100, 10, 200)
+car2 = Car("diesel", 70, 80, 8, 150)
 
-    simulation = Simulation(canvas)
+# add cars to highway
+highway.add_car(car1)
+highway.add_car(car2)
 
-    for i in range(10):
-        create_car(simulation)
+# create Pygame window
+pygame.init()
+screen = pygame.display.set_mode((800, 600))
 
-    start_button = tk.Button(root, text="Start", command=lambda: threading.Thread(target=simulation.start).start())
-    start_button.pack(side=tk.LEFT)
+# game loop
+while True:
+    for event in pygame.event.get():handle user input
+        if event.type == pygame.QUIT:
+        pygame.quit()
+        sys.exit()
+    elif event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_ESCAPE:
+            pygame.quit()
+            sys.exit()
 
-    stop_button = tk.Button(root, text="Stop", command=simulation.stop)
-    stop_button.pack(side=tk.LEFT)
+# update highway and cars
+highway.move_cars(0.1)
+highway.draw(screen)
 
-    root.mainloop()
+# update Pygame display
+pygame.display.update()
 
-if __name__ == "__main__":
-    main()
-У цьому оновленому коді ми створили функцію create_car, яка створює нові автомобілі та додає їх до симуляції.
+
+У цьому прикладі ми створюємо об'єкт Highway, додаємо до нього дві машини, і потім використовуємо Pygame для створення вікна та обробки дій користувача.
+В головному циклі програми ми використовуємо метод `move_cars()` об'єкту Highway для переміщення машин на дорозі, 
+а також метод `draw()` для візуалізації дороги та машин на екрані.
+
+Це лише загальний приклад, і реалізація програми може мати більш складну логіку та багато інших функцій. 
+Проте, він демонструє, як можна застосувати об'єктно-орієнтований підхід та візуальний інтерфейс для створення імітації руху машин 
+на автобані з різним набором різновидів машин.
